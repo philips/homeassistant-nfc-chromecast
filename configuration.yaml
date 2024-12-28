@@ -1,0 +1,53 @@
+<<: !include ./secrets.yaml
+
+esphome:
+  name: nfc-chromecast
+  # Magic variables to get the ESP32C3 Super Mini to work
+  platformio_options:
+    board_build.f_flash: 40000000L
+    board_build.flash_mode: dio
+    board_build.flash_size: 4MB
+  on_boot:
+    priority: 600
+    then:
+      - rtttl.play: 'short:d=4,o=5,b=100:16e6,16e6'
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+    version: recommended
+
+# Enable logging
+logger:
+
+
+captive_portal:
+
+status_led:
+  pin:
+    number: GPIO8
+    inverted: true
+
+output:
+  - platform: ledc
+    pin: GPIO3
+    id: buzzer
+
+rtttl:
+  output: buzzer
+  on_finished_playback:
+    - logger.log: 'Song ended!'
+
+spi:
+  clk_pin: GPIO4
+  mosi_pin: GPIO6
+  miso_pin: GPIO7
+
+rc522_spi:
+  cs_pin: GPIO5
+  on_tag:
+    then:
+      - rtttl.stop:
+      - homeassistant.tag_scanned: !lambda 'return x;'
+      - rtttl.play: 'short:d=4,o=5,b=100:16e6,16e6'

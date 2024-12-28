@@ -1,0 +1,45 @@
+alias: NFC Reader - Jellyfin
+description: ""
+triggers:
+  - event_type: tag_scanned
+    trigger: event
+actions:
+  - variables:
+      NFC_MAPPING:
+        8D-B5-18-03:
+          name: Game Novel
+          jellyfin_ids:
+            - b9115bd24e3e80c254a1f0c4885e2058
+        C5-F6-42-3D:
+          name: Down 
+          jellyfin_ids:
+            - 04e9c17bdf3581d7ce8bd8a724fa964a
+        81-63-YY-YY:
+          name: Zesty Zebra
+          jellyfin_id:
+            - 15841fd2ce46ddb063f688309f066742
+            - 11dc631bd0b17089fd75e1b4794dcbe7
+            - 1edaf522f931a1457aa227aff4ca6e73
+        81-63-37-B3:
+          name: Purpley 
+          jellyfin_id:
+            - f92cb2ab86e3f59b47833cca40176098
+            - 493abe356632f72e53c43e9e17e4a9f4
+            - f5121e5bea2ec7146b336fe7c7f64ba6
+  - if:
+      - alias: NFC tag is in the mapping
+        condition: template
+        value_template: "{{ trigger.event.data.tag_id in NFC_MAPPING }}"
+    then:
+      - if:
+          - condition: template
+            value_template: "{{ \"jellyfin_id\" in NFC_MAPPING[trigger.event.data.tag_id] }}"
+        then:
+          - action: media_player.play_media
+            data:
+              media_content_type: url
+              media_content_id: >-
+                media-source://jellyfin/{{NFC_MAPPING[trigger.event.data.tag_id].jellyfin_id | random}}
+            target:
+              entity_id: media_player.office_tv
+mode: single
