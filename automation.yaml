@@ -22,7 +22,7 @@ actions:
             - 1edaf522f931a1457aa227aff4ca6e73
         81-63-37-B3:
           name: Purpley 
-          jellyfin_id:
+          jellyfin_ids:
             - f92cb2ab86e3f59b47833cca40176098
             - 493abe356632f72e53c43e9e17e4a9f4
             - f5121e5bea2ec7146b336fe7c7f64ba6
@@ -33,13 +33,13 @@ actions:
     then:
       - if:
           - condition: template
-            value_template: "{{ \"jellyfin_id\" in NFC_MAPPING[trigger.event.data.tag_id] }}"
+            value_template: "{{ \"jellyfin_ids\" in NFC_MAPPING[trigger.event.data.tag_id] }}"
         then:
           - action: media_player.play_media
             data:
               media_content_type: url
               media_content_id: >-
-                media-source://jellyfin/{{NFC_MAPPING[trigger.event.data.tag_id].jellyfin_id | random}}
+                media-source://jellyfin/{{NFC_MAPPING[trigger.event.data.tag_id].jellyfin_ids | random}}
             target:
               entity_id: media_player.office_tv
 mode: single
